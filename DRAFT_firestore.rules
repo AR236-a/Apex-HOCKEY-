@@ -1,0 +1,244 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 1: Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    function incoming() {
+      return request.resource.data;
+    }
+    function existing() {
+      return resource.data;
+    }
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Validation Blueprint: PlayerProfile
+    function isValidPlayerProfile(data) {
+      return data.keys().hasAll([
+        'uid', 'displayName', 'avatarCode', 'teamId', 'equippedJerseyId',
+        'unlockedJerseyIds', 'mmr', 'rankTier', 'wins', 'losses', 'goals',
+        'assists', 'shots', 'hits', 'saves', 'xp', 'seasonPassLevel',
+        'statSpeed', 'statPower', 'statHandling', 'statChecking', 'statStamina',
+        'completedChallengeIds', 'claimedRewardIds', 'worldCupTitles', 'asiaCupTitles',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'uid', 'displayName', 'avatarCode', 'teamId', 'equippedJerseyId',
+        'unlockedJerseyIds', 'mmr', 'rankTier', 'wins', 'losses', 'goals',
+        'assists', 'shots', 'hits', 'saves', 'xp', 'seasonPassLevel',
+        'statSpeed', 'statPower', 'statHandling', 'statChecking', 'statStamina',
+        'completedChallengeIds', 'claimedRewardIds', 'worldCupTitles', 'asiaCupTitles',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.uid == request.auth.uid &&
+      data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+      data.avatarCode is string && data.avatarCode.size() >= 1 && data.avatarCode.size() <= 32 &&
+      data.teamId is string && data.teamId.size() >= 1 && data.teamId.size() <= 32 &&
+      data.equippedJerseyId is string && data.equippedJerseyId.size() >= 1 && data.equippedJerseyId.size() <= 64 &&
+      data.unlockedJerseyIds is list && data.unlockedJerseyIds.size() >= 1 && data.unlockedJerseyIds.size() <= 30 &&
+      (data.unlockedJerseyIds[0] is string && data.unlockedJerseyIds[0].size() <= 64) &&
+      data.mmr is number && data.mmr >= 0 && data.mmr <= 10000 &&
+      data.rankTier is string && data.rankTier in ['Bronze', 'Silver', 'Gold', 'Diamond', 'Apex Legend'] &&
+      data.wins is number && data.wins >= 0 && data.wins <= 100000 &&
+      data.losses is number && data.losses >= 0 && data.losses <= 100000 &&
+      data.goals is number && data.goals >= 0 && data.goals <= 500000 &&
+      data.assists is number && data.assists >= 0 && data.assists <= 500000 &&
+      data.shots is number && data.shots >= 0 && data.shots <= 1000000 &&
+      data.hits is number && data.hits >= 0 && data.hits <= 1000000 &&
+      data.saves is number && data.saves >= 0 && data.saves <= 1000000 &&
+      data.xp is number && data.xp >= 0 && data.xp <= 10000000 &&
+      data.seasonPassLevel is number && data.seasonPassLevel >= 1 && data.seasonPassLevel <= 100 &&
+      data.statSpeed is number && data.statSpeed >= 50 && data.statSpeed <= 99 &&
+      data.statPower is number && data.statPower >= 50 && data.statPower <= 99 &&
+      data.statHandling is number && data.statHandling >= 50 && data.statHandling <= 99 &&
+      data.statChecking is number && data.statChecking >= 50 && data.statChecking <= 99 &&
+      data.statStamina is number && data.statStamina >= 50 && data.statStamina <= 99 &&
+      data.completedChallengeIds is list && data.completedChallengeIds.size() <= 20 &&
+      (data.completedChallengeIds.size() == 0 || (data.completedChallengeIds[0] is string && data.completedChallengeIds[0].size() <= 64)) &&
+      data.claimedRewardIds is list && data.claimedRewardIds.size() <= 30 &&
+      (data.claimedRewardIds.size() == 0 || (data.claimedRewardIds[0] is string && data.claimedRewardIds[0].size() <= 64)) &&
+      data.worldCupTitles is number && data.worldCupTitles >= 0 && data.worldCupTitles <= 1000 &&
+      data.asiaCupTitles is number && data.asiaCupTitles >= 0 && data.asiaCupTitles <= 1000 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: ChatMessage
+    function isValidChatMessage(data) {
+      return data.keys().hasAll(['authorId', 'authorName', 'authorTeam', 'channel', 'text', 'createdAt']) &&
+      data.keys().hasOnly(['authorId', 'authorName', 'authorTeam', 'channel', 'text', 'createdAt']) &&
+      data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 && data.authorId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.authorId == request.auth.uid &&
+      data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+      data.authorTeam is string && data.authorTeam.size() >= 1 && data.authorTeam.size() <= 32 &&
+      data.channel is string && data.channel in ['global', 'world-cup', 'asia-cup', 'lfg', 'strategy'] &&
+      data.text is string && data.text.size() >= 1 && data.text.size() <= 400 &&
+      data.createdAt is timestamp;
+    }
+
+    // Validation Blueprint: SocialGroup
+    function isValidSocialGroup(data) {
+      return data.keys().hasAll([
+        'ownerId', 'ownerName', 'name', 'tag', 'region',
+        'description', 'memberCount', 'totalMmr', 'inviteCode', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'ownerId', 'ownerName', 'name', 'tag', 'region',
+        'description', 'memberCount', 'totalMmr', 'inviteCode', 'createdAt', 'updatedAt'
+      ]) &&
+      data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 60 &&
+      data.name is string && data.name.size() >= 2 && data.name.size() <= 60 &&
+      data.tag is string && data.tag.size() >= 2 && data.tag.size() <= 8 &&
+      data.region is string && data.region in ['Global', 'North America', 'Europe', 'Asia-Pacific'] &&
+      data.description is string && data.description.size() >= 1 && data.description.size() <= 240 &&
+      data.memberCount is number && data.memberCount >= 1 && data.memberCount <= 500 &&
+      data.totalMmr is number && data.totalMmr >= 0 && data.totalMmr <= 5000000 &&
+      data.inviteCode is string && data.inviteCode.size() >= 4 && data.inviteCode.size() <= 16 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: TournamentRun
+    function isValidTournamentRun(data) {
+      return data.keys().hasAll([
+        'ownerId', 'ownerName', 'mode', 'userTeamId', 'currentRound',
+        'status', 'goalsFor', 'goalsAgainst', 'wins', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'ownerId', 'ownerName', 'mode', 'userTeamId', 'currentRound',
+        'status', 'goalsFor', 'goalsAgainst', 'wins', 'createdAt', 'updatedAt'
+      ]) &&
+      data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.ownerId == request.auth.uid &&
+      data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 60 &&
+      data.mode is string && data.mode in ['world_cup', 'asia_cup', 'all_teams'] &&
+      data.userTeamId is string && data.userTeamId.size() >= 1 && data.userTeamId.size() <= 32 &&
+      data.currentRound is number && data.currentRound >= 0 && data.currentRound <= 10 &&
+      data.status is string && data.status in ['active', 'champion', 'eliminated'] &&
+      data.goalsFor is number && data.goalsFor >= 0 && data.goalsFor <= 1000 &&
+      data.goalsAgainst is number && data.goalsAgainst >= 0 && data.goalsAgainst <= 1000 &&
+      data.wins is number && data.wins >= 0 && data.wins <= 100 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Connection test document (read-only check for offline diagnostics)
+    match /test/{docId} {
+      allow get: if isValidId(docId) && (resource == null || resource.data.enabled == true);
+      allow list, create, update, delete: if false;
+    }
+
+    // Collection: /players/{playerId}
+    match /players/{playerId} {
+      allow get: if isValidId(playerId) && (resource == null || existing().mmr >= 0);
+      allow list: if existing().mmr >= 0;
+      allow create: if isVerifiedUser() &&
+        isValidId(playerId) &&
+        playerId == request.auth.uid &&
+        isValidPlayerProfile(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser() &&
+        isValidId(playerId) &&
+        playerId == request.auth.uid &&
+        isValidPlayerProfile(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          // Action 1: Update custom skater attributes, team, or jersey
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'displayName', 'avatarCode', 'teamId', 'equippedJerseyId', 'unlockedJerseyIds',
+            'statSpeed', 'statPower', 'statHandling', 'statChecking', 'statStamina', 'updatedAt'
+          ]) ||
+          // Action 2: Record match outcome, stats, challenges, or tournament titles
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'mmr', 'rankTier', 'wins', 'losses', 'goals', 'assists', 'shots', 'hits', 'saves',
+            'xp', 'seasonPassLevel', 'unlockedJerseyIds', 'completedChallengeIds', 'claimedRewardIds',
+            'worldCupTitles', 'asiaCupTitles', 'updatedAt'
+          ])
+        );
+      allow delete: if false;
+    }
+
+    // Collection: /chatMessages/{messageId}
+    match /chatMessages/{messageId} {
+      allow get: if isValidId(messageId) && (resource == null || existing().channel in ['global', 'world-cup', 'asia-cup', 'lfg', 'strategy']);
+      allow list: if existing().channel in ['global', 'world-cup', 'asia-cup', 'lfg', 'strategy'];
+      allow create: if isVerifiedUser() &&
+        isValidId(messageId) &&
+        isValidChatMessage(incoming()) &&
+        incoming().createdAt == request.time &&
+        exists(/databases/$(database)/documents/players/$(request.auth.uid));
+      allow update, delete: if false;
+    }
+
+    // Collection: /socialGroups/{groupId}
+    match /socialGroups/{groupId} {
+      allow get: if isValidId(groupId) && (resource == null || existing().memberCount >= 1);
+      allow list: if existing().memberCount >= 1;
+      allow create: if isVerifiedUser() &&
+        isValidId(groupId) &&
+        isValidSocialGroup(incoming()) &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().memberCount == 1 &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        exists(/databases/$(database)/documents/players/$(request.auth.uid));
+      allow update: if isVerifiedUser() &&
+        isValidId(groupId) &&
+        isValidSocialGroup(incoming()) &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          // Action 1: Owner edits club details
+          (existing().ownerId == request.auth.uid &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'region', 'updatedAt'])) ||
+          // Action 2: Verified player joins club and increments memberCount + totalMmr
+          (incoming().memberCount == existing().memberCount + 1 &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['memberCount', 'totalMmr', 'updatedAt']))
+        );
+      allow delete: if false;
+    }
+
+    // Collection: /tournamentRuns/{runId}
+    match /tournamentRuns/{runId} {
+      allow get: if isValidId(runId) && (resource == null || existing().mode in ['world_cup', 'asia_cup', 'all_teams']);
+      allow list: if existing().mode in ['world_cup', 'asia_cup', 'all_teams'];
+      allow create: if isVerifiedUser() &&
+        isValidId(runId) &&
+        isValidTournamentRun(incoming()) &&
+        incoming().status == 'active' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        exists(/databases/$(database)/documents/players/$(request.auth.uid));
+      allow update: if isVerifiedUser() &&
+        isValidId(runId) &&
+        isValidTournamentRun(incoming()) &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().mode == existing().mode &&
+        incoming().userTeamId == existing().userTeamId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        // Terminal State Locking: cannot update once champion or eliminated
+        existing().status == 'active' &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'currentRound', 'status', 'goalsFor', 'goalsAgainst', 'wins', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+  }
+}

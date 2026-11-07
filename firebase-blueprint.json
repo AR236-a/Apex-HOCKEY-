@@ -1,0 +1,301 @@
+{
+  "entities": {
+    "PlayerProfile": {
+      "title": "PlayerProfile",
+      "description": "Public competitive hockey player profile, custom attribute build, unlocked jerseys, and ranked leaderboard statistics (zero PII).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "Public skater callsign"
+        },
+        "avatarCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Crest or helmet emblem code"
+        },
+        "teamId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Primary national or club team ID"
+        },
+        "equippedJerseyId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Currently equipped jersey skin ID"
+        },
+        "unlockedJerseyIds": {
+          "type": "array",
+          "description": "Bounded list of unlocked jersey IDs (max 30)"
+        },
+        "mmr": {
+          "type": "number",
+          "description": "Ranked Matchmaking Rating"
+        },
+        "rankTier": {
+          "type": "string",
+          "enum": ["Bronze", "Silver", "Gold", "Diamond", "Apex Legend"],
+          "description": "Competitive division tier"
+        },
+        "wins": { "type": "number" },
+        "losses": { "type": "number" },
+        "goals": { "type": "number" },
+        "assists": { "type": "number" },
+        "shots": { "type": "number" },
+        "hits": { "type": "number" },
+        "saves": { "type": "number" },
+        "xp": { "type": "number" },
+        "seasonPassLevel": { "type": "number" },
+        "statSpeed": { "type": "number" },
+        "statPower": { "type": "number" },
+        "statHandling": { "type": "number" },
+        "statChecking": { "type": "number" },
+        "statStamina": { "type": "number" },
+        "completedChallengeIds": {
+          "type": "array",
+          "description": "Bounded list of completed daily challenge IDs (max 20)"
+        },
+        "claimedRewardIds": {
+          "type": "array",
+          "description": "Bounded list of claimed seasonal reward IDs (max 30)"
+        },
+        "worldCupTitles": { "type": "number" },
+        "asiaCupTitles": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "avatarCode",
+        "teamId",
+        "equippedJerseyId",
+        "unlockedJerseyIds",
+        "mmr",
+        "rankTier",
+        "wins",
+        "losses",
+        "goals",
+        "assists",
+        "shots",
+        "hits",
+        "saves",
+        "xp",
+        "seasonPassLevel",
+        "statSpeed",
+        "statPower",
+        "statHandling",
+        "statChecking",
+        "statStamina",
+        "completedChallengeIds",
+        "claimedRewardIds",
+        "worldCupTitles",
+        "asiaCupTitles",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Global and tournament channel chat message for community coordination and strategy.",
+      "type": "object",
+      "properties": {
+        "authorId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "authorName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "authorTeam": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["global", "world-cup", "asia-cup", "lfg", "strategy"]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["authorId", "authorName", "authorTeam", "channel", "text", "createdAt"]
+    },
+    "SocialGroup": {
+      "title": "SocialGroup",
+      "description": "Hockey club / social squad for inviting friends and competing together.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 60
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 8
+        },
+        "region": {
+          "type": "string",
+          "enum": ["Global", "North America", "Europe", "Asia-Pacific"]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "memberCount": {
+          "type": "number"
+        },
+        "totalMmr": {
+          "type": "number"
+        },
+        "inviteCode": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 16
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "ownerName",
+        "name",
+        "tag",
+        "region",
+        "description",
+        "memberCount",
+        "totalMmr",
+        "inviteCode",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TournamentRun": {
+      "title": "TournamentRun",
+      "description": "Tracks a player's World Cup, Asia Cup, or All Teams Championship run.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["world_cup", "asia_cup", "all_teams"]
+        },
+        "userTeamId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "currentRound": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "champion", "eliminated"]
+        },
+        "goalsFor": {
+          "type": "number"
+        },
+        "goalsAgainst": {
+          "type": "number"
+        },
+        "wins": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "ownerName",
+        "mode",
+        "userTeamId",
+        "currentRound",
+        "status",
+        "goalsFor",
+        "goalsAgainst",
+        "wins",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/players/{playerId}": {
+      "schema": { "$ref": "#/entities/PlayerProfile" },
+      "description": "Public competitive skater profiles and leaderboard stats"
+    },
+    "/chatMessages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Global and tournament channel chat messages"
+    },
+    "/socialGroups/{groupId}": {
+      "schema": { "$ref": "#/entities/SocialGroup" },
+      "description": "Social hockey clubs and squads"
+    },
+    "/tournamentRuns/{runId}": {
+      "schema": { "$ref": "#/entities/TournamentRun" },
+      "description": "World Cup, Asia Cup, and All Teams tournament campaign records"
+    }
+  }
+}

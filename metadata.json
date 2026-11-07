@@ -1,0 +1,6 @@
+{
+  "name": "Apex Ice: World Hockey Championship",
+  "description": "Real-time multiplayer ice hockey game featuring realistic puck physics, World Cup & Asia Cup tournaments, custom player builds, unlockable jerseys, ranked leaderboards, voice chat, and social clubs.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
